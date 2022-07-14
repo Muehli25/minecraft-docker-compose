@@ -1,0 +1,54 @@
+version: "3"
+
+services:
+  minecraft:
+    image: itzg/minecraft-server
+    ports:
+      - 25565:25565
+    environment:
+      EULA: "TRUE"
+    tty: true
+    stdin_open: true
+    restart: unless-stopped
+    volumes:
+      - ./data:/data
+  overviewer:
+    image: mide/minecraft-overviewer:latest
+    environment:
+      MINECRAFT_VERSION: "1.19"
+    restart: "no"
+    volumes:
+      - ./data/:/home/minecraft/server/:ro
+      - ./overviewer/:/home/minecraft/render/:rw
+  restarter:
+    image: docker
+    volumes: ["/var/run/docker.sock:/var/run/docker.sock"]
+    command: ["/bin/sh", "-c", "while true; do sleep 86400; docker restart minecraft-overviewer-1; done"]
+    restart: unless-stopped
+  caddy:
+    image: caddy:latest
+    restart: unless-stopped
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - ./overviewer:/srv
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.caddy.entrypoints=http"
+      - "traefik.http.routers.caddy.rule=Host(`overviewer.mhlnstdt.de`)"
+      - "traefik.http.middlewares.caddy-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.routers.caddy.middlewares=caddy-https-redirect"
+      - "traefik.http.routers.caddy-secure.entrypoints=https"
+      - "traefik.http.routers.caddy-secure.rule=Host(`overviewer.mhlnstdt.de`)"
+      - "traefik.http.routers.caddy-secure.tls=true"
+      - "traefik.http.routers.caddy-secure.tls.certresolver=le"
+      - "traefik.http.routers.caddy-secure.tls.options=myTLSOptions@file"
+      - "traefik.http.routers.caddy-secure.service=caddy"
+      - "traefik.http.services.caddy.loadbalancer.server.port=80"
+      - "traefik.docker.network=proxynet"
+      - "traefik.http.routers.caddy-secure.middlewares=secHeaders@file"
+    networks:
+        - proxynet
+      
+networks:
+    proxynet:
+        external: true
