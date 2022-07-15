@@ -33,19 +33,19 @@ services:
       - ./overviewer:/srv
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.caddy.entrypoints=http"
-      - "traefik.http.routers.caddy.rule=Host(`overviewer.mhlnstdt.de`)"
-      - "traefik.http.middlewares.caddy-https-redirect.redirectscheme.scheme=https"
-      - "traefik.http.routers.caddy.middlewares=caddy-https-redirect"
-      - "traefik.http.routers.caddy-secure.entrypoints=https"
-      - "traefik.http.routers.caddy-secure.rule=Host(`overviewer.mhlnstdt.de`)"
-      - "traefik.http.routers.caddy-secure.tls=true"
-      - "traefik.http.routers.caddy-secure.tls.certresolver=le"
-      - "traefik.http.routers.caddy-secure.tls.options=myTLSOptions@file"
-      - "traefik.http.routers.caddy-secure.service=caddy"
-      - "traefik.http.services.caddy.loadbalancer.server.port=80"
+      - "traefik.http.routers.overviewer.entrypoints=http"
+      - "traefik.http.routers.overviewer.rule=Host(`overviewer.mhlnstdt.de`)"
+      - "traefik.http.middlewares.overviewer-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.routers.overviewer.middlewares=overviewer-https-redirect"
+      - "traefik.http.routers.overviewer-secure.entrypoints=https"
+      - "traefik.http.routers.overviewer-secure.rule=Host(`overviewer.mhlnstdt.de`)"
+      - "traefik.http.routers.overviewer-secure.tls=true"
+      - "traefik.http.routers.overviewer-secure.tls.certresolver=le"
+      - "traefik.http.routers.overviewer-secure.tls.options=myTLSOptions@file"
+      - "traefik.http.routers.overviewer-secure.service=overviewer"
+      - "traefik.http.services.overviewer.loadbalancer.server.port=80"
       - "traefik.docker.network=proxynet"
-      - "traefik.http.routers.caddy-secure.middlewares=secHeaders@file"
+      - "traefik.http.routers.overviewer-secure.middlewares=secHeaders@file"
     networks:
         - proxynet
       
